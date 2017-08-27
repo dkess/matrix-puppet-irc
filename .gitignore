@@ -1,0 +1,4 @@
+node_modules
+*.db
+*.yaml
+config.json

@@ -1,0 +1,17 @@
+{
+	"irc": {
+		"servicePrefix": "freenode",
+		"serviceName": "FreeNode",
+		"server": "irc.freenode.net",
+		"port": 6667,
+		"nick": "yournick",
+		"password": "yourpassword"
+	},
+	"registrationPath": "irc-registration.yaml",
+	"port": 8092,
+	"bridge": {
+		"https://synapse.keyvan.pw",
+		"domain": "synapse.keyvan.pw",
+		"registration": "irc-registration.yaml"
+	}
+}
