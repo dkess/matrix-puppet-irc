@@ -3,7 +3,7 @@ const irc = require('irc');
 const config = require('./config.json');
 const {
   MatrixAppServiceBridge: {
-    Bridge, Cli, AppServiceRegistration
+    Bridge, Cli, AppServiceRegistration, Intent
   },
   Puppet,
   MatrixPuppetBridgeBase
@@ -31,6 +31,8 @@ class App extends MatrixPuppetBridgeBase {
     this.client = this.createClient();
     var client = this.client;
     var app = this;
+    var isAway = false;
+    var readOnUnaway = this.config.readOnUnaway;
 
     client.on('names', function (chan, nicks) {
       var matrixRoomIdFuture = app.getOrCreateMatrixRoomFromThirdPartyRoomId(chan);
@@ -122,6 +124,8 @@ class App extends MatrixPuppetBridgeBase {
 
     client.on('message#', function (nick, chan, text) {
       const isMe = nick === client.nick;
+      
+      var roomPromise = app.getOrCreateMatrixRoomFromThirdPartyRoomId(chan);
       return app.handleThirdPartyRoomMessage({
 	roomId: chan,
 	senderName: nick,
@@ -129,6 +133,13 @@ class App extends MatrixPuppetBridgeBase {
 	text
       }).catch(err => {
 	console.error(err.stack);
+      }).then(function(result) {
+	if (readOnUnaway && !isAway) {
+	  var intent = new Intent(app.puppet.getClient(), null, {registered: true});
+	  roomPromise.then(function(roomId) {
+	    intent.sendReadReceipt(roomId, result.event_id);
+	  });
+	}
       });
     });
 
@@ -148,6 +159,13 @@ class App extends MatrixPuppetBridgeBase {
 	text: "(notice) " + text
       }).catch(err => {
 	console.error(err.stack);
+      }).then(function(result) {
+	if (readOnUnaway && !isAway) {
+	  var intent = new Intent(app.puppet.getClient(), null, {registered: true});
+	  roomPromise.then(function(roomId) {
+	    intent.sendReadReceipt(roomId, result.event_id);
+	  });
+	}
       });
     });
 
@@ -183,7 +201,22 @@ class App extends MatrixPuppetBridgeBase {
 	text: formatted
       }).catch(err => {
 	console.error(err.stack);
+      }).then(function(result) {
+	if (readOnUnaway && !isAway) {
+	  var intent = new Intent(app.puppet.getClient(), null, {registered: true});
+	  roomPromise.then(function(roomId) {
+	    intent.sendReadReceipt(roomId, result.event_id);
+	  });
+	}
       });
+    });
+
+    client.on('raw', function (msg) {
+      if (msg.command === 'rpl_nowaway') {
+	isAway = true;
+      } else if (msg.command === 'rpl_unaway') {
+	isAway = false;
+      }
     });
     console.log('Subscribed to IRC events');
     //});

@@ -5,7 +5,8 @@
 		"server": "irc.freenode.net",
 		"port": 6667,
 		"nick": "yournick",
-		"password": "yourpassword"
+		"password": "yourpassword",
+		"readOnUnaway": false
 	},
 	"registrationPath": "irc-registration.yaml",
 	"port": 8092,
