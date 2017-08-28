@@ -170,8 +170,8 @@ class App extends MatrixPuppetBridgeBase {
     });
 
     client.on('nick', function (oldnick, newnick, chans) {
-      oldIntentPromise = app.getIntentFromThirdPartySenderId(oldnick);
-      newIntentPromise = app.getIntentFromThirdPartySenderId(newnick);
+      var oldIntentPromise = app.getIntentFromThirdPartySenderId(oldnick);
+      var newIntentPromise = app.getIntentFromThirdPartySenderId(newnick);
       for (let chan of chans) {
 	app.getOrCreateMatrixRoomFromThirdPartyRoomId(chan).then((matrixRoomId) => {
 	  oldIntentPromise.then((oldIntent) => {
